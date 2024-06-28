@@ -1,0 +1,32 @@
+DECLARE @names NVARCHAR(100) = 'Alice,Bob,Charlie,David';
+
+SELECT value
+FROM STRING_SPLIT(@names, ',');
+GO
+DECLARE @orders VARCHAR(100) = '1,2,3,4,5';
+GO
+CREATE TABLE Customers (
+    CustomerID INT,
+    CustomerName VARCHAR(100) NOT NULL,
+    ContactEmail VARCHAR(255) NOT NULL,
+    PhoneNumber VARCHAR(20),
+    MultipleEmails VARCHAR(8000) -- Column with comma-separated values
+);
+
+INSERT INTO Customers (CustomerID, CustomerName, ContactEmail, PhoneNumber, MultipleEmails) VALUES
+(1, 'Contoso Ltd', 'contact@contoso.com', '1234567890', 'email1@contoso.com;email2@contoso.com;email3@contoso.com'),
+(2, 'Fabrikam, Inc', 'info@fabrikam.com', '0987654321', 'primary@fabrikam.com;support@fabrikam.com'),
+(3, 'Adventure Works', 'hello@adventure-works.com', '1122334455', 'adventure@works.com;contact@adventure.com');
+
+GO
+SELECT CAST(value AS INT) AS OrderID
+FROM STRING_SPLIT(@orders, ',');
+GO
+SELECT CustomerName, MultipleEmails, [value]
+FROM Customers
+CROSS APPLY STRING_SPLIT(MultipleEmails, ';', 1);
+GO
+SELECT emails.[value], emailpart.[value]
+FROM Customers
+CROSS APPLY STRING_SPLIT(MultipleEmails, ';') as emails
+CROSS APPLY STRING_SPLIT(emails.[value], '@') as emailpart;
